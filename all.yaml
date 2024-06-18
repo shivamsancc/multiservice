@@ -1,9 +1,26 @@
 ---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sbt-rmq
+---
+# Secret for Docker Hub
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhub-secret
+  namespace: sbt-rmq
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJzdXBlcmJvdGRldm9wcyIsInBhc3N3b3JkIjoiYkQuelBxd0dqeUcucEw2IiwicmVhbG1zIjoiaHR0cHM6Ly9pbmRleC5kb2NrZXIuaW8vdjEvIn19fQ==
+type: kubernetes.io/dockerconfigjson
+---
 # MongoDB Deployment and Service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodb-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -24,6 +41,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongodb-service
+  namespace: sbt-rmq
 spec:
   selector:
     app: mongodb
@@ -37,6 +55,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -57,6 +76,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-service
+  namespace: sbt-rmq
 spec:
   selector:
     app: redis
@@ -70,6 +90,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kong-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -106,6 +127,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kong-proxy
+  namespace: sbt-rmq
 spec:
   selector:
     app: kong
@@ -123,6 +145,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kong-admin
+  namespace: sbt-rmq
 spec:
   selector:
     app: kong
@@ -141,6 +164,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: homepage-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -161,11 +185,14 @@ spec:
           value: "mongodb://mongodb-service:27017/homepagedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: homepage-service
+  namespace: sbt-rmq
 spec:
   selector:
     app: homepage
@@ -179,6 +206,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aboutpage-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -199,11 +227,14 @@ spec:
           value: "mongodb://mongodb-service:27017/aboutpagedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: aboutpage-service
+  namespace: sbt-rmq
 spec:
   selector:
     app: aboutpage
@@ -217,6 +248,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: contactpage-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -237,11 +269,14 @@ spec:
           value: "mongodb://mongodb-service:27017/contactpagedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: contactpage-service
+  namespace: sbt-rmq
 spec:
   selector:
     app: contactpage
@@ -255,6 +290,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: listservice-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -275,11 +311,14 @@ spec:
           value: "mongodb://mongodb-service:27017/listservicedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: listservice-service
+  namespace: sbt-rmq
 spec:
   selector:
     app: listservice
@@ -293,6 +332,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
+  namespace: sbt-rmq
 spec:
   replicas: 1
   selector:
@@ -308,11 +348,14 @@ spec:
         image: superbotdevops/frontend:latest
         ports:
         - containerPort: 80
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
+  namespace: sbt-rmq
 spec:
   selector:
     app: frontend
