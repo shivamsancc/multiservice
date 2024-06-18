@@ -1,0 +1,342 @@
+---
+# MongoDB Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongodb-persistent-storage
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+---
+# Redis Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+---
+# Kong API Gateway Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      containers:
+      - name: kong
+        image: kong:latest
+        env:
+        - name: KONG_DATABASE
+          value: "off"
+        - name: KONG_PROXY_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_ADMIN_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_PROXY_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_LISTEN
+          value: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
+        ports:
+        - containerPort: 8000
+        - containerPort: 8443
+        - containerPort: 8001
+        - containerPort: 8444
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-proxy
+spec:
+  selector:
+    app: kong
+  ports:
+    - name: proxy
+      protocol: TCP
+      port: 80
+      targetPort: 8000
+    - name: proxy-ssl
+      protocol: TCP
+      port: 443
+      targetPort: 8443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-admin
+spec:
+  selector:
+    app: kong
+  ports:
+    - name: admin
+      protocol: TCP
+      port: 8001
+      targetPort: 8001
+    - name: admin-ssl
+      protocol: TCP
+      port: 8444
+      targetPort: 8444
+---
+# HomePage Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      containers:
+      - name: homepage
+        image: superbotdevops/homepage:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URL
+          value: "mongodb://mongodb-service:27017/homepagedb"
+        - name: REDIS_HOST
+          value: "redis-service"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage-service
+spec:
+  selector:
+    app: homepage
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+# AboutPage Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aboutpage-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aboutpage
+  template:
+    metadata:
+      labels:
+        app: aboutpage
+    spec:
+      containers:
+      - name: aboutpage
+        image: superbotdevops/aboutpage:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URL
+          value: "mongodb://mongodb-service:27017/aboutpagedb"
+        - name: REDIS_HOST
+          value: "redis-service"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aboutpage-service
+spec:
+  selector:
+    app: aboutpage
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+# ContactPage Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contactpage-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contactpage
+  template:
+    metadata:
+      labels:
+        app: contactpage
+    spec:
+      containers:
+      - name: contactpage
+        image: superbotdevops/contactpage:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URL
+          value: "mongodb://mongodb-service:27017/contactpagedb"
+        - name: REDIS_HOST
+          value: "redis-service"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: contactpage-service
+spec:
+  selector:
+    app: contactpage
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+# ListService Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: listservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: listservice
+  template:
+    metadata:
+      labels:
+        app: listservice
+    spec:
+      containers:
+      - name: listservice
+        image: superbotdevops/listservice:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URL
+          value: "mongodb://mongodb-service:27017/listservicedb"
+        - name: REDIS_HOST
+          value: "redis-service"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: listservice-service
+spec:
+  selector:
+    app: listservice
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+# Frontend Deployment and Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: superbotdevops/frontend:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+# Persistent Volume Claim for MongoDB
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
