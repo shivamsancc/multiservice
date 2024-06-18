@@ -185,6 +185,8 @@ spec:
           value: "mongodb://mongodb-service:27017/homepagedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
@@ -225,6 +227,8 @@ spec:
           value: "mongodb://mongodb-service:27017/aboutpagedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
@@ -265,6 +269,8 @@ spec:
           value: "mongodb://mongodb-service:27017/contactpagedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
@@ -305,6 +311,8 @@ spec:
           value: "mongodb://mongodb-service:27017/listservicedb"
         - name: REDIS_HOST
           value: "redis-service"
+        imagePullSecrets:
+        - name: dockerhub-secret
 ---
 apiVersion: v1
 kind: Service
